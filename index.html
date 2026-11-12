@@ -70,9 +70,14 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--sage);outline-offse
   padding:calc(24px + env(safe-area-inset-top, 0px)) 0 calc(24px + env(safe-area-inset-bottom, 0px))}
 .intro-video{position:relative;height:min(74vh,640px);aspect-ratio:9/16;max-width:calc(100% - 32px);border-radius:16px;overflow:hidden;background:#000}
 .intro-video video{width:100%;height:100%;object-fit:cover;display:block}
-.intro-sound{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);border:0;border-radius:999px;background:rgba(255,255,255,.92);color:var(--ink-strong);font-size:14px;padding:10px 18px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
-.intro-sound.on{left:10px;bottom:10px;transform:none;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:6px 12px;box-shadow:none}
+.intro-sound{position:absolute;left:10px;bottom:10px;border:0;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:6px 12px}
+.intro-start{position:absolute;inset:0;border:0;padding:0;background:rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff;font-family:var(--display);font-size:16px;letter-spacing:.08em;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.intro-start .play{position:relative;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)}
+.intro-start .play::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.75);animation:ping 2.2s ease-out infinite}
+.intro-start .play svg{width:26px;height:26px;margin-left:5px;fill:var(--ink-strong)}
 .intro-skip{position:absolute;top:calc(14px + env(safe-area-inset-top, 0px));right:max(14px, env(safe-area-inset-right, 0px));border:0;background:none;color:#B9BDB0;font-size:13px}
+.intro{transition:opacity .8s ease}
+.intro.fade{opacity:0}
 .intro-title{display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;transition:opacity .6s}
 .intro.done .intro-title{opacity:1}
 .intro-title p{margin:0}
@@ -208,7 +213,8 @@ details[open] summary::after{transform:rotate(45deg)}
   <button class="intro-skip" id="introSkip">건너뛰기</button>
   <div class="intro-video">
     <video id="introVideo" src="video/intro_v2.mp4" poster="video/poster_v2.jpg" muted playsinline preload="auto"></video>
-    <button class="intro-sound" id="introSound">🔊 우준이 목소리 듣기</button>
+    <button class="intro-sound" id="introSound" hidden>🔊 소리 끄기</button>
+    <button class="intro-start" id="introStart" hidden aria-label="우준이 영상 소리와 함께 시작하기"><span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg></span><span>눌러서 시작하기</span></button>
   </div>
   <div class="intro-title">
     <p class="t1">첫 번째 생일에 초대합니다</p>
@@ -380,22 +386,29 @@ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce
 
 // ---------- intro ----------
 (function(){
-  var intro=document.getElementById('intro'), vid=document.getElementById('introVideo'), snd=document.getElementById('introSound'), first=true;
-  function play(){try{var p=vid.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
-  function open(){intro.classList.remove('done');vid.currentTime=0;intro.hidden=false;document.body.classList.add('locked');play()}
-  function close(){vid.pause();intro.hidden=true;document.body.classList.remove('locked')}
-  vid.addEventListener('ended',function(){intro.classList.add('done')});
-  vid.addEventListener('click',function(){if(vid.paused)play();else vid.pause()});
-  snd.onclick=function(){
-    if(first){first=false;vid.muted=false;vid.currentTime=0;snd.classList.add('on');snd.textContent='🔊 소리 끄기';play();return;}
-    vid.muted=!vid.muted;snd.textContent=vid.muted?'🔇 소리 켜기':'🔊 소리 끄기';if(vid.paused)play();
-  };
+  var intro=document.getElementById('intro'), vid=document.getElementById('introVideo'),
+      snd=document.getElementById('introSound'), start=document.getElementById('introStart');
+  function started(){start.hidden=true;snd.hidden=false;snd.textContent=vid.muted?'🔇 소리 켜기':'🔊 소리 끄기'}
+  function needTap(){vid.pause();vid.muted=false;start.hidden=false;snd.hidden=true}
+  // try to start with sound; browsers that block it get the tap-to-start screen
+  function tryAuto(){
+    vid.muted=false; vid.currentTime=0;
+    var p; try{p=vid.play()}catch(e){needTap();return}
+    if(p&&p.then){p.then(started,needTap)}else{started()}
+  }
+  function playWithSound(){vid.muted=false;vid.currentTime=0;var p=vid.play();if(p&&p.catch)p.catch(function(){});started()}
+  function open(){intro.classList.remove('done','fade');intro.hidden=false;document.body.classList.add('locked');playWithSound()}
+  function close(){vid.pause();intro.hidden=true;intro.classList.remove('fade');document.body.classList.remove('locked')}
+  start.onclick=playWithSound;
+  vid.addEventListener('ended',function(){intro.classList.add('fade');setTimeout(close,850)});
+  vid.addEventListener('click',function(){if(vid.paused){var p=vid.play();if(p&&p.catch)p.catch(function(){})}else vid.pause()});
+  snd.onclick=function(){vid.muted=!vid.muted;snd.textContent=vid.muted?'🔇 소리 켜기':'🔊 소리 끄기'};
   document.getElementById('introGo').onclick=close;
   document.getElementById('introSkip').onclick=close;
   document.getElementById('replay').onclick=open;
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!intro.hidden)close()});
   document.body.classList.add('locked');
-  play();
+  tryAuto();
 })();
 
 // ---------- leaf divider ----------
