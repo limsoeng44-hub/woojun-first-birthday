@@ -213,15 +213,10 @@ details[open] summary::after{transform:rotate(45deg)}
 <div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="우준이 인트로">
   <button class="intro-skip" id="introSkip">건너뛰기</button>
   <div class="intro-video">
-    <video id="introVideo" src="video/intro_v2.mp4" poster="video/poster_v2.jpg" muted playsinline preload="auto"></video>
+    <video id="introVideo" src="video/intro_v3.mp4" poster="video/poster_v3.jpg" muted playsinline preload="auto"></video>
     <button class="intro-sound" id="introSound" hidden>🔊 소리 끄기</button>
     <button class="intro-start" id="introStart" hidden aria-label="우준이 영상 소리와 함께 시작하기"><span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg></span><span>눌러서 시작하기</span></button>
   </div>
-  <div class="intro-title">
-    <p class="t1">첫 번째 생일에 초대합니다</p>
-    <p class="t2">신우준</p>
-  </div>
-  <button class="intro-go" id="introGo">초대장 열기</button>
 </div>
 
 <main class="page">
@@ -272,19 +267,6 @@ details[open] summary::after{transform:rotate(45deg)}
       </div>
       <div class="countdown reveal" id="countdown" aria-label="돌잔치까지 남은 시간"></div>
       <p class="note reveal" id="dday"></p>
-    </div>
-  </section>
-
-  <!-- video -->
-  <section class="band sage">
-    <div class="inner">
-      <p class="eyebrow reveal">Video</p>
-      <h2 class="title reveal">우준이의 초대</h2>
-      <button class="video-card reveal" id="replay" aria-label="우준이 초대 영상 보기">
-        <img src="video/thumb.jpg" alt="첫돌 카드를 들고 있는 우준이">
-        <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg></span>
-        <span class="cap"><span>우준이가 직접 초대해요</span><small>0:28</small></span>
-      </button>
     </div>
   </section>
 
@@ -404,9 +386,7 @@ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce
   vid.addEventListener('ended',function(){intro.classList.add('fade');setTimeout(close,850)});
   vid.addEventListener('click',function(){if(vid.paused){var p=vid.play();if(p&&p.catch)p.catch(function(){})}else vid.pause()});
   snd.onclick=function(){vid.muted=!vid.muted;snd.textContent=vid.muted?'🔇 소리 켜기':'🔊 소리 끄기'};
-  document.getElementById('introGo').onclick=close;
   document.getElementById('introSkip').onclick=close;
-  document.getElementById('replay').onclick=open;
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!intro.hidden)close()});
   document.body.classList.add('locked');
   tryAuto();
