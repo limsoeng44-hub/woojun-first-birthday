@@ -89,6 +89,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--sage);outline-offse
 /* ---------- cover ---------- */
 .cover{position:relative;aspect-ratio:2/3;max-width:100%;overflow:hidden;background:#EEEDE7}
 .cover img{width:100%;height:100%;object-fit:cover;display:block;animation:kb 14s ease-out both}
+html.capture .cover img{animation:none}
 @keyframes kb{from{transform:scale(1.07)}to{transform:scale(1)}}
 .petals{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .petal{position:absolute;top:-30px;width:12px;height:16px;border-radius:70% 0 70% 0;background:linear-gradient(135deg,#F6D46A,#E6A93A);opacity:.85;animation:fall linear infinite}
@@ -360,7 +361,8 @@ var pad=function(n){return (n<10?'0':'')+n};
 var MONTHS=[];for(var m=1;m<=12;m++)MONTHS.push({src:'img/m'+pad(m)+'.jpg',label:m===12?'12개월 · 돌':m+'개월'});
 var DOL=[['g35','wide'],['g36','tall'],['g40','tall'],['g39','wide'],['g41','wide'],['g37','wide']]
   .map(function(d){return {src:'img/'+d[0]+'.jpg',shape:d[1],label:''}});
-var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var capture=location.hash==='#figma'; if(capture)document.documentElement.classList.add('capture'); // 디자인 캡처용: 인트로·효과 없이 전체 표시
+var reduce=capture||(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 // ---------- intro ----------
 (function(){
@@ -383,6 +385,7 @@ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce
   snd.onclick=function(){vid.muted=!vid.muted;snd.textContent=vid.muted?'🔇 소리 켜기':'🔊 소리 끄기'};
   document.getElementById('introSkip').onclick=close;
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!intro.hidden)close()});
+  if(capture){intro.hidden=true;return;}
   document.body.classList.add('locked');
   tryAuto();
 })();
@@ -449,7 +452,7 @@ var LB=(function(){
 (function(){
   var g=document.getElementById('months'), n=MONTHS.length;
   g.innerHTML=MONTHS.map(function(p,i){
-    return '<button class="month reveal'+(i===n-1?' last':'')+'" style="transition-delay:'+(i%3*0.12)+'s" data-i="'+i+'" aria-label="'+p.label+' 사진 크게 보기"><span class="ph"><img src="'+p.src+'" alt="'+p.label+' 우준이" loading="lazy"></span><span>'+(i===n-1?'돌':p.label)+'</span></button>';
+    return '<button class="month reveal'+(i===n-1?' last':'')+'" style="transition-delay:'+(i%3*0.12)+'s" data-i="'+i+'" aria-label="'+p.label+' 사진 크게 보기"><span class="ph"><img src="'+p.src+'" alt="'+p.label+' 우준이"'+(capture?'':' loading="lazy"')+'></span><span>'+(i===n-1?'돌':p.label)+'</span></button>';
   }).join('');
   g.addEventListener('click',function(e){var b=e.target.closest('.month');if(b)LB.open(MONTHS,+b.dataset.i)});
 })();
@@ -457,7 +460,7 @@ var LB=(function(){
 // ---------- gallery ----------
 (function(){
   var dg=document.getElementById('dolGrid');
-  dg.innerHTML=DOL.map(function(p,i){return '<button class="'+p.shape+' reveal" data-i="'+i+'" aria-label="돌 사진 '+(i+1)+' 크게 보기"><img src="'+p.src+'" alt="우준이 돌 사진 '+(i+1)+'" loading="lazy"></button>'}).join('');
+  dg.innerHTML=DOL.map(function(p,i){return '<button class="'+p.shape+' reveal" data-i="'+i+'" aria-label="돌 사진 '+(i+1)+' 크게 보기"><img src="'+p.src+'" alt="우준이 돌 사진 '+(i+1)+'"'+(capture?'':' loading="lazy"')+'></button>'}).join('');
   dg.addEventListener('click',function(e){var b=e.target.closest('button');if(b)LB.open(DOL,+b.dataset.i)});
 })();
 
