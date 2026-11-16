@@ -298,11 +298,11 @@ details[open] summary::after{transform:rotate(45deg)}
       <div class="acc reveal">
         <details>
           <summary>아빠 신승철</summary>
-          <div class="row"><div><div class="who">은행 · 신승철</div><div class="num">계좌번호 입력 필요</div></div><button class="chip" data-copy="">복사</button></div>
+          <div class="row"><div><div class="who">국민은행 · 신승철</div><div class="num">4532 0204 219378</div></div><button class="chip" data-copy="45320204219378">복사</button></div>
         </details>
         <details>
           <summary>엄마 서기화</summary>
-          <div class="row"><div><div class="who">은행 · 서기화</div><div class="num">계좌번호 입력 필요</div></div><button class="chip" data-copy="">복사</button></div>
+          <div class="row"><div><div class="who">국민은행 · 서기화</div><div class="num">91007042667</div></div><button class="chip" data-copy="91007042667">복사</button></div>
         </details>
       </div>
     </div>
@@ -483,7 +483,7 @@ document.addEventListener('click',function(e){
   if(v==='share') v=location.href;
   if(!v){say('계좌번호를 넣으면 복사돼요');return;}
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(v).then(function(){say(b.classList.contains('share')?'초대장 링크가 복사되었습니다':'복사되었습니다')},function(){say(v)});
+    navigator.clipboard.writeText(v).then(function(){say(b.classList.contains('share')?'초대장 링크가 복사되었습니다':(/^[0-9]+$/.test(v)?'계좌번호가 복사되었습니다':'복사되었습니다'))},function(){say(v)});
   } else say(v);
 });
 </script>
